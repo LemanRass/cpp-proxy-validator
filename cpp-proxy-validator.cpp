@@ -1,15 +1,5 @@
-#include <iostream>
-#include <vector>
-#include <thread>
-#include <curl/curl.h>
-#include "ProxyList.h"
-#include "Logger.h"
+﻿#include "cpp-proxy-validator.h"
 
-struct Request
-{
-    CURL* curl;
-    long code;
-};
 
 string targetUrl;
 int timeout = 20000;
@@ -20,7 +10,7 @@ vector<thread> threads;
 
 
 string page;
-size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)
+size_t write_data(char* buffer, size_t size, size_t nmemb, void* userp)
 {
     size_t realSize = size * nmemb;
 
@@ -31,7 +21,7 @@ size_t write_data(char *buffer, size_t size, size_t nmemb, void *userp)
     return realSize;
 }
 
-Request createRequest(const string &proxy) {
+Request createRequest(const string& proxy) {
 
     CURL* curl;
 
@@ -48,7 +38,7 @@ Request createRequest(const string &proxy) {
     return { curl };
 }
 
-void performRequest(Request &request) {
+void performRequest(Request& request) {
 
     curl_easy_perform(request.curl);
     curl_easy_getinfo(request.curl, CURLINFO_RESPONSE_CODE, &request.code);
@@ -62,9 +52,9 @@ void disposeRequest(Request request) {
 
 void writeValidProxiesToFile() {
 
-    FILE *f = fopen("./whitelist.txt", "wt+");
+    FILE* f = fopen("./whitelist.txt", "wt+");
 
-    for (auto & validProxy : validProxies) {
+    for (auto& validProxy : validProxies) {
         fputs((validProxy + '\n').c_str(), f);
     }
 
@@ -85,7 +75,8 @@ void checkProxy() {
         if (request.code == 200) {
             validProxies.push_back(proxy);
             Logger::Log("\033[32m[SUCCESS]\033[0m " + proxy);
-        } else {
+        }
+        else {
             Logger::Log("\033[31m[FAIL]\033[0m " + proxy);
         }
         disposeRequest(request);
@@ -106,7 +97,8 @@ int main() {
     getline(cin, threadsCountInput);
     if (strcmp(threadsCountInput.c_str(), "") == 0) {
         threadsCount = 100;
-    } else {
+    }
+    else {
         threadsCount = stoi(threadsCountInput);
     }
 
@@ -116,7 +108,8 @@ int main() {
     getline(cin, timeoutInput);
     if (strcmp(timeoutInput.c_str(), "") == 0) {
         timeout = 10000;
-    } else {
+    }
+    else {
         timeout = stoi(timeoutInput);
     }
     cout << endl;
@@ -141,7 +134,7 @@ int main() {
     }
 
     //Awaiting threads
-    for (auto & thread : threads) {
+    for (auto& thread : threads) {
         thread.join();
     }
 
